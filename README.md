@@ -40,30 +40,10 @@ AI 분석은 평균 수십 초가 소요되는 장기 작업이므로,
 
 
 ## 🏗 System Architecture (Cloud Native & Hybrid)
-```bash
-User
-  ↓
-Cloudflare (DNS + SSL + Edge Proxy)
-  ↓
-Nginx (Reverse Proxy)
-  ↓
-Spring Boot (API Server, OCI)
-  ↓
-Kafka (Aiven)
-  ↓
-FastAPI (Hugging Face Spaces)
-  ↓
-Kafka
-  ↓
-Spring Boot
-  ↓
-Redis (Sorted Set)
-  ↓
-WebSocket
-  ↓
-User
-```
-본 프로젝트는 고가용성, 확장성, 그리고 보안성을 최우선으로 고려하여 **이기종 클라우드 환경 및 Managed Service**를 조합한 하이브리드 아키텍처로 설계되었습니다.
+<img width="2452" height="1573" alt="오케이 찐 최종 drawio" src="https://github.com/user-attachments/assets/0fe4fa2e-c69d-4575-b241-6c5b1ac8ee40" />
+
+본 프로젝트는 고가용성, 확장성, 그리고 보안성을 최우선으로 고려하여 
+**클라우드 환경 및 Managed Service**를 조합한 하이브리드 아키텍처로 설계되었습니다.
 
 
 ### 1. Compute & Containerization (OCI)
@@ -106,6 +86,11 @@ User
 * **실시간 집계**: 분석 결과로 도출된 기업을 Redis의 **Sorted Set**에 즉시 반영하여 인기 순위를 실시간 산출합니다.
 * **배치 시스템**: 매일 자정 **Spring Batch**를 통해 Redis의 실시간 데이터를 MySQL(`CompanyRankDaily`)로 이관(Upsert)하여 영구 보존합니다.
 
+### 3. 커뮤니티 및 실시간 소통 (Community & Interaction)
+
+*   **실시간 채팅 (Real-time Chat)**: WebSocket(STOMP) 기반의 채팅 시스템을 구축하여 뉴스 분석 결과를 바탕으로 사용자 간의 실시간 정보 공유 및 토론 환경을 제공합니다.
+*   **기업별 소통 게시판**: 각 기업별 전용 게시판을 통해 댓글 및 반응(좋아요/싫어요) 기능을 지원하며, Redis를 활용해 대량의 리액션을 실시간으로 집계하고 정합성을 유지합니다.
+*   **콘텐츠 가이드라인 (Clean Filter)**: 비속어 필터링 로직을 적용하여 건강한 커뮤니티 환경을 유지할 수 있도록 관리 시스템을 구축했습니다.
 
 
 ---
