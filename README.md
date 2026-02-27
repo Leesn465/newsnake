@@ -174,11 +174,12 @@ graph LR
 
 
 
-sql
+```sql
 SELECT company, COUNT(*)
 FROM FastApiEntity
 GROUP BY company
 ORDER BY COUNT(*) DESC;
+```
 
 
 
