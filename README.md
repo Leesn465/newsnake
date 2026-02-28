@@ -15,7 +15,7 @@
 
 ---
 
-## 🌐 서비스 바로가기
+## 서비스 바로가기
 **[https://newsnake.site](https://newsnake.site)** (현재 운영 중)
 
 ---
@@ -39,7 +39,7 @@ AI 분석은 평균 수십 초가 소요되는 장기 작업이므로,
 ---
 
 
-## 🏗 System Architecture (Cloud Native & Hybrid)
+## System Architecture (Cloud Native & Hybrid)
 <img width="2452" height="1573" alt="오케이 찐 최종 drawio" src="https://github.com/user-attachments/assets/0fe4fa2e-c69d-4575-b241-6c5b1ac8ee40" />
 
 본 프로젝트는 고가용성, 확장성, 그리고 보안성을 최우선으로 고려하여 
@@ -75,7 +75,7 @@ AI 분석은 평균 수십 초가 소요되는 장기 작업이므로,
   - 도메인과 DNS를 Cloudflare로 관리하고, SSL을 적용하여 전 구간 HTTPS 환경을 구성했습니다.
 ---
 
-## 🚀 Key Features (핵심 기능)
+## Key Features (핵심 기능)
 
 ### 1. AI 뉴스 분석 파이프라인
 * **뉴스 분석**: URL 입력 시 AI가 본문을 스크래핑하여 **3줄 요약, 핵심 키워드, 연관 기업**을 도출합니다.
@@ -95,17 +95,17 @@ AI 분석은 평균 수십 초가 소요되는 장기 작업이므로,
 
 ---
 
-## 🔥 Technical Decisions (핵심 기술 의사결정)
+## Technical Decisions (핵심 기술 의사결정)
 
-### ✅ Managed Service 기반의 인프라 효율화
+### Managed Service 기반의 인프라 효율화
 직접 구축 시 발생하는 운영 리소스를 최소화하고 서비스 로직 개발에 집중하기 위해 **Aiven Managed Service**를 선택했습니다.
 특히 Kafka의 복잡한 클러스터 관리와 보안 설정을 클라우드 레벨에서 해결했습니다.
 
-### ✅ 서버 다중화를 고려한 중앙 집중형 캐시 (Redis)
+### 서버 다중화를 고려한 중앙 집중형 캐시 (Redis)
 인스턴스 복제 시 발생하는 세션 파편화 문제를 해결하기 위해 **외부 Redis**를 도입했습니다.
 이를 통해 로드 밸런서 하단의 어떤 서버로 접속하더라도 동일한 랭킹과 세션 정보를 보장받습니다.
 
-### ✅ GitHub Actions를 활용한 CI/CD 무중단 배포
+### GitHub Actions를 활용한 CI/CD 무중단 배포
 * **Backend**: 빌드 후 OCI 인스턴스로 Docker 컨테이너를 자동 배포합니다.
 * **Frontend**: React 빌드 결과물을 Oracle Object Storage에 자동으로 동기화하여 배포 자동화를 구현했습니다.
 
@@ -143,15 +143,15 @@ AI 분석은 평균 수십 초가 소요되는 장기 작업이므로,
 |
 ```
 
-## 🧠 기술적으로 해결한 문제들
+## 기술적으로 해결한 문제들
 
-### 1️⃣ AI 장기 작업을 동기 처리하지 않음.
-**🚨 Problem**
+### 1️ AI 장기 작업을 동기 처리하지 않음.
+**Problem**
 AI 뉴스 분석은 평균 **20~200초**가 소요되는 장기 작업입니다. 기존 동기(Sync) API 구조에서는 다음과 같은 병목이 발생했습니다.
 * 요청 스레드의 장시간 점유 및 Thread Pool 고갈 위험
 * 트래픽 증가 시 서버 전체 응답성 저하
 
-**✅ 해결 방법**
+**해결 방법**
 요청 즉시 이벤트를 발행하고 제어권을 반환하는 **EDA(Event-Driven Architecture)**를 설계했습니다.
 
 ```mermaid
@@ -166,9 +166,9 @@ graph LR
   
 ---
 
-## 2️⃣ 실시간 랭킹 집계를 DB에서 제거
+## 2️ 실시간 랭킹 집계를 DB에서 제거
 
-### 🚨 Initial Problem
+### Initial Problem
 
 초기 구조에서는 원본 로그 테이블(FastApiEntity)을 직접 집계하여 실시간 랭킹을 계산했습니다.
 
@@ -191,9 +191,9 @@ ORDER BY COUNT(*) DESC;
 *   DB CPU 사용량 지속 상승
 *   트래픽 증가 시 구조적 병목 발생
 
-👉 단순 인덱스 튜닝으로는 해결 불가한 구조적 문제
+-> 단순 인덱스 튜닝으로는 해결 불가한 구조적 문제
 
-### ❌ Why Index Tuning Was Not Enough
+###  Why Index Tuning Was Not Enough
 
 `GROUP BY COUNT(*)` 연산은
 데이터가 증가할수록 Full Scan + Aggregation 비용이 선형 증가
@@ -204,7 +204,7 @@ ORDER BY COUNT(*) DESC;
 
 이는 단순 튜닝이 아닌 아키텍처 레벨 개선이 필요한 상황이었습니다.
 
-### ✅ 해결 방법
+### 해결 방법
 
 집계 책임을 DB에서 제거하고, 실시간 데이터는 Redis에서 처리하도록 구조를 변경했습니다.
 
@@ -215,21 +215,21 @@ ORDER BY COUNT(*) DESC;
 → 조회는 Redis에서만 수행
 ```
 
-### 📈 결과
+### 결과
 
 | 방식 | p95 응답 시간 |
 | :--- | :--- |
 | 원본 직접 집계 | ~120ms |
 | Redis + 집계 테이블 | ~2ms |
 
-👉 약 98% 성능 개선
+-> 약 98% 성능 개선
 
 또한 DB CPU 사용량이 안정화되며,
 트래픽 증가에도 응답 시간 편차가 거의 발생하지 않도록 개선되었습니다.
 
 ---
 
-## 3️⃣ Kafka Idempotent Processing Design (Kafka 중복 메시지 처리 설계)
+## 3️ Kafka Idempotent Processing Design (Kafka 중복 메시지 처리 설계)
 
 Kafka는 at-least-once를 보장합니다.
 즉, 같은 메시지가 2번 올 수 있습니다.
@@ -244,9 +244,9 @@ Redis processedKey 체크
 
 Redis 분산 Lock
 
-### 📈 결과
+### 결과
 
-👉 메시지가 2번 와도 결과는 1번만 반영됩니다.
+-> 메시지가 2번 와도 결과는 1번만 반영됩니다.
 데이터 정합성을 보장했습니다.
 
 ✔ 데이터 정합성 보장
@@ -255,9 +255,9 @@ Redis 분산 Lock
 
 ---
 
-## 4️⃣ 실제 장애를 겪고 인프라를 다시 설계
+## 4️ 실제 장애를 겪고 인프라를 다시 설계
 
-### 🚨 AWS Free Tier 장애 경험
+### AWS Free Tier 장애 경험
 
 초기 운영 중 다음과 같은 문제가 발생했습니다.
 
@@ -266,32 +266,32 @@ Redis 분산 Lock
 *   서비스 복구 지연
 *   과금 지속 발생
 
-👉 단순 배포 환경이 아닌 운영 관점 인프라 설계의 중요성을 체감
+-> 단순 배포 환경이 아닌 운영 관점 인프라 설계의 중요성을 체감
 
-### ✅ OCI 기반 재설계
+### OCI 기반 재설계
 
 운영 안정성을 최우선으로 고려하여
 네트워크 구조부터 재설계했습니다.
 
-#### 🔐 Network Segmentation
+#### Network Segmentation
 
 *   **Public Subnet** – Nginx / API 서버
 *   **Private Subnet** – DB 배치
 *   DB 외부 접근 완전 차단
 
-#### ⚙ 개선 방향
+#### 개선 방향
 
 *   Load Balancer Liveness Check 적용
 *   OCI Monitoring 알람 설정
 *   비정상 인스턴스 자동 감지
 
-👉 평균 30~60초 이내 장애 감지 가능
+-> 평균 30~60초 이내 장애 감지 가능
 
 ---
 ### 마무리
 
 NewSnake는 단순한 기능 구현을 넘어, **실제 운영 환경에서 발생할 수 있는 병목과 장애**를 기술적으로 해결해 나가는 과정에 집중한 프로젝트입니다. 
-AI 비동기 처리, Redis 기반의 집계 최적화, Kafka 정합성 설계, 그리고 클라우드 인프라의 관측성(Monitoring) 확보까지 — **지속 가능한 서비스**를 만들기 위한 개발자의 고민을 담았습니다.
+AI 비동기 처리, Redis 기반의 집계 최적화, Kafka 정합성 설계, 그리고 클라우드 인프라의 관측성(Monitoring) 확보까지 **지속 가능한 서비스**를 만들기 위한 개발자의 고민을 담았습니다.
 
 **감사합니다!**
 
